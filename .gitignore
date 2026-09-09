@@ -1,0 +1,22 @@
+# 진행 문서 — Drive에만 두고 GitHub에는 올리지 않는다
+요구사항_*.md
+이해_*.md
+평가준비_*.md
+평가문항.md
+
+# 시크릿 (작업규칙 §6) — .env.example은 커밋해야 하므로 제외하지 않는다
+.env
+.env.local
+
+# OS · 에디터 부산물
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+
+# 도구 로컬 상태
+.omc/
+
+# Python
+__pycache__/
+*.pyc
