@@ -2,7 +2,10 @@
 요구사항_*.md
 이해_*.md
 평가준비_*.md
+코드해석_*.html
 평가문항.md
+CLAUDE.md
+WORKLOG.md
 
 # 시크릿 (작업규칙 §6) — .env.example은 커밋해야 하므로 제외하지 않는다
 .env
