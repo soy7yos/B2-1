@@ -2,6 +2,8 @@
 import argparse
 
 from budget_app.decorators import AppError, handle_errors
+from budget_app.repository import CategoryRepository, TransactionRepository
+from budget_app.service import CategoryService
 
 _NOT_IMPLEMENTED = "이 기능은 아직 구현되지 않았습니다 (다음 단계에서 추가 예정)"
 
@@ -52,6 +54,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_cat_list.set_defaults(func=cmd_category_list)
     p_cat_remove = category_sub.add_parser("remove", help="카테고리 삭제")
     p_cat_remove.add_argument("name")
+    # 사용 중인 카테고리는 기본적으로 삭제 차단 — 옮길 곳을 명시해야 삭제 허용 (이해_B2-1 §4-10)
+    p_cat_remove.add_argument("--replace-with", help="사용 중인 거래를 옮길 대체 카테고리")
     p_cat_remove.set_defaults(func=cmd_category_remove)
 
     # update는 옵션 기반으로 고정 (이해_B2-1 ❓5) — delete와 방식 통일
@@ -111,19 +115,29 @@ def cmd_budget_set(args: argparse.Namespace) -> int:
     raise AppError(_NOT_IMPLEMENTED)
 
 
+def _category_service(args: argparse.Namespace) -> CategoryService:
+    return CategoryService(CategoryRepository(args.data_dir), TransactionRepository(args.data_dir))
+
+
 @handle_errors
 def cmd_category_add(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    _category_service(args).add(args.name)
+    print(f"카테고리 '{args.name}' 추가 완료")
 
 
 @handle_errors
 def cmd_category_list(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    for name in _category_service(args).list():
+        print(name)
 
 
 @handle_errors
 def cmd_category_remove(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    moved = _category_service(args).remove(args.name, args.replace_with)
+    if moved:
+        print(f"카테고리 '{args.name}' 삭제 완료 (거래 {moved}건을 '{args.replace_with}'로 이동)")
+    else:
+        print(f"카테고리 '{args.name}' 삭제 완료")
 
 
 @handle_errors
