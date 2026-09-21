@@ -1,33 +1,28 @@
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --help
+$ python -m budget_app --help
 usage: budget_app [-h]
-
 터미널 용돈기입장 프로그램 - 수입/지출을 기록하고 요약한다.
-
 options:
   -h, --help  show this help message and exit
+$ python -c "
+from budget_app.repository import TransactionRepository, CategoryRepository, BudgetRepository
+from budget_app.models import Transaction, Budget
 
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -c "                
->> from budget_app.repository import TransactionRepository, CategoryRepository, BudgetRepository
->> from budget_app.models import Transaction, Budget
->> 
->> cat_repo = CategoryRepository('data')
->> print('categories(빈 폴더 첫 실행):', cat_repo.list_categories())
->> 
->> tx_repo = TransactionRepository('data')
->> tx_repo.append(Transaction(id='i2609170', type='income', date='2026-09-17', amount=10000, category='급여', memo='테스트', tags=['월급']))
->> print('transactions:', list(tx_repo.stream_all()))
->> 
->> bud_repo = BudgetRepository('data')
->> bud_repo.set_budget(Budget(month='2026-09', amount=500000))
->> print('budgets:', list(bud_repo.stream_all()))
->> "
+cat_repo = CategoryRepository('data')
+print('categories(빈 폴더 첫 실행):', cat_repo.list_categories())
+
+tx_repo = TransactionRepository('data')
+tx_repo.append(Transaction(id='i2609170', type='income', date='2026-09-17', amount=10000, category='급여', memo='테스트', tags=['월급']))
+print('transactions:', list(tx_repo.stream_all()))
+
+bud_repo = BudgetRepository('data')
+bud_repo.set_budget(Budget(month='2026-09', amount=500000))
+print('budgets:', list(bud_repo.stream_all()))
+"
 categories(빈 폴더 첫 실행): ['식비', '교통', '주거', '통신', '급여', '기타']
 transactions: [Transaction(id='i2609170', type='income', date='2026-09-17', amount=10000, category='급여', memo='테스트', tags=['월급'])]
 budgets: [Budget(month='2026-09', amount=500000)]
-
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> git add .
-
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> git commit -m "feat: 저장소 계층 추가 (JSONL 스트리밍 + 원자적 쓰기)"
+$ git add .
+$ git commit -m "feat: 저장소 계층 추가 (JSONL 스트리밍 + 원자적 쓰기)"
 [main 606cf78] feat: 저장소 계층 추가 (JSONL 스트리밍 + 원자적 쓰기)
  6 files changed, 124 insertions(+), 1 deletion(-)
  create mode 100644 budget_app/repository.py
@@ -35,8 +30,7 @@ PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> git commit -m "feat: 저장소
  create mode 100644 data/categories.jsonl
  create mode 100644 data/transactions.jsonl
  create mode 100644 logs/step_2_repo.txt
-
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> git push
+$ git push
 Enumerating objects: 15, done.
 Counting objects: 100% (15/15), done.
 Delta compression using up to 12 threads

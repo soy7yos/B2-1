@@ -1,11 +1,8 @@
 $ python -m budget_app --help
 usage: budget_app [-h]
-
 터미널 용돈기입장 - 수입/지출을 기록하고 요약한다.
-
 options:
   -h, --help  show this help message and exit
-
 $ python -c "
 from budget_app.models import Transaction, Budget
 t = Transaction(id='i2609160', type='income', date='2026-09-16', amount=1000, category='급여', tags=['월급'])

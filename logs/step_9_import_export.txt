@@ -1,7 +1,7 @@
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app export --out data/export_test.csv --month 2026-09
+$ python -m budget_app export --out data/export_test.csv --month 2026-09
 [내보내기 완료] 3건 -> data/export_test.csv
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app import --from data/export_test.csv               
+$ python -m budget_app import --from data/export_test.csv
 imported=3, skipped=0
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app import --from data/bad_sample.csv                
+$ python -m budget_app import --from data/bad_sample.csv
 오류: [Errno 2] No such file or directory: 'data/bad_sample.csv'
 힌트: 입력값과 --data-dir 경로를 확인하세요.

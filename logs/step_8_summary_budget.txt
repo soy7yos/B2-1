@@ -1,22 +1,22 @@
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app add                                  
+$ python -m budget_app add
 날짜(YYYY-MM-DD): 2026-09-10
 타입(income/expense): expense
 카테고리: 식비
 금액(양수): 20000
 메모(선택): 저녁
-태그(쉼표로 구분, 없으면 엔터): 
+태그(쉼표로 구분, 없으면 엔터):
 [저장 완료] id=e26091001
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app add
+$ python -m budget_app add
 날짜(YYYY-MM-DD): 2026-09-15
 타입(income/expense): income
 카테고리: 급여
 금액(양수): 1000000
-메모(선택): 
-태그(쉼표로 구분, 없으면 엔터): 
+메모(선택):
+태그(쉼표로 구분, 없으면 엔터):
 [저장 완료] id=i26091501
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app budget set --month 2026-09 --amount 100000
+$ python -m budget_app budget set --month 2026-09 --amount 100000
 [예산 저장 완료] 2026-09 = 100000
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app summary --month 2026-09                   
+$ python -m budget_app summary --month 2026-09
 2026-09 요약
   총수입: 1010000
   총지출: 20000
@@ -24,5 +24,5 @@ PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app summary -
   지출 상위 카테고리 (top 3):
     식비: 20000
   예산: 100000 (사용률 20.0%, 정상)
-PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app summary --month 2099-01
+$ python -m budget_app summary --month 2099-01
 2099-01: 데이터 없음

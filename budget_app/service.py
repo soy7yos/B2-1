@@ -29,7 +29,7 @@ class CategoryService:
         return self._categories.list_categories()
 
     def remove(self, name: str, replace_with: str | None) -> int:
-        # 거래가 가리키는 카테고리가 사라지면 데이터 정합성이 깨진다 (이해_B2-1 §4-10) — 사용 중이면 막거나 대체 카테고리로 옮긴다
+        # 거래가 가리키는 카테고리가 사라지면 데이터 정합성이 깨진다 (§4-10: 카테고리 삭제 시 정합성 유지) — 사용 중이면 막거나 대체 카테고리로 옮긴다
         names = self._categories.list_categories()
         if name not in names:
             raise AppError(f"'{name}'은(는) 없는 카테고리입니다. 힌트: category list로 확인하세요.")
@@ -78,7 +78,7 @@ class TransactionService:
         return text
 
     def validate_category(self, text: str) -> str:
-        # 없는 카테고리면 §4-9대로 안내만 하고 재입력을 유도 (자동 생성하지 않음)
+        # 없는 카테고리면 §4-2대로 안내만 하고 재입력을 유도 (자동 생성하지 않음)
         if text not in self._categories.list_categories():
             raise AppError(f"'{text}'은(는) 등록되지 않은 카테고리입니다. 힌트: category add로 먼저 등록하세요.")
         return text
@@ -109,7 +109,7 @@ class TransactionService:
         memo: str | None = None,
         tags: list[str] | None = None,
     ) -> Transaction:
-        # 옵션 기반 update (이해_B2-1 ❓5) — 준 필드만 검증 후 덮어쓴다
+        # 옵션 기반 update — 준 필드만 검증 후 덮어쓴다
         all_tx = list(self._tx.stream_all())
         target = next((tx for tx in all_tx if tx.id == tx_id), None)
         if target is None:
@@ -128,7 +128,7 @@ class TransactionService:
         if type_ is not None:
             self.validate_type(type_)
             if type_ != target.type:
-                # id 앞글자만 새 type에 맞춰 교체, 뒤 8자리(날짜+순번)는 유지 (이해_B2-1 ❓6 결정)
+                # id 앞글자만 새 type에 맞춰 교체, 뒤 8자리(날짜+순번)는 유지
                 target.type = type_
                 target.id = ("i" if type_ == "income" else "e") + target.id[1:]
 
@@ -143,7 +143,7 @@ class TransactionService:
         self._tx.replace_all(remaining)
 
     def list_recent(self, limit: int) -> list[Transaction]:
-        # sorted(list(...))는 전체를 메모리에 두 번 올린다 — heapq.nlargest는 스트림을 순회하며 상위 limit개만 유지 (§4-5)
+        # sorted(list(...))는 전체를 메모리에 두 번 올린다 — heapq.nlargest는 스트림을 순회하며 상위 limit개만 유지 (§4-5 스트리밍 요건)
         return heapq.nlargest(limit, self._tx.stream_all(), key=lambda tx: (tx.date, tx.id))
 
     def search(
@@ -171,13 +171,13 @@ class TransactionService:
                 return False
             return True
 
-        # 제너레이터를 조건으로 필터링하며 순회 (§4-7) — 결과 집합만 리스트에 남기고 최신순 정렬
+        # 제너레이터를 조건으로 필터링하며 순회 (§4-7 검색 스트리밍 요건) — 결과 집합만 리스트에 남기고 최신순 정렬
         matched = [tx for tx in self._tx.stream_all() if matches(tx)]
         matched.sort(key=lambda tx: (tx.date, tx.id), reverse=True)
         return matched
 
     def import_csv(self, csv_path: str) -> tuple[int, int]:
-        # 한 줄씩 검증 후 통과한 줄만 저장 — 스키마 위반/없는 카테고리는 skip (이해_B2-1 ❓13)
+        # 한 줄씩 검증 후 통과한 줄만 저장 — 스키마 위반/없는 카테고리는 skip
         imported = 0
         skipped = 0
         with open(csv_path, encoding="utf-8", newline="") as f:
@@ -221,7 +221,7 @@ class TransactionService:
 
 
 class SummaryService:
-    """월별 집계 + 예산 사용률. summary가 transactions·budgets 두 파일을 합쳐 읽는 지점 (이해_B2-1 §4-9)."""
+    """월별 집계 + 예산 사용률. summary가 transactions·budgets 두 파일을 합쳐 읽는 지점 (§4-9: 예산 사용률 계산)."""
 
     def __init__(self, tx_repo: TransactionRepository, budget_repo: BudgetRepository):
         self._tx = tx_repo
@@ -248,7 +248,7 @@ class SummaryService:
         budget = next((b for b in self._budget.stream_all() if b.month == month), None)
         budget_info = None
         if budget is not None:
-            # 사용률 = 총지출 / 예산 × 100 (이해_B2-1 §4-9)
+            # 사용률 = 총지출 / 예산 × 100 (§4-9: 예산 사용률 계산)
             usage_pct = round(expense / budget.amount * 100, 1) if budget.amount else 0.0
             budget_info = {"amount": budget.amount, "usage_pct": usage_pct, "over": expense > budget.amount}
 

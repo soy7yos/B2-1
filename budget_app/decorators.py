@@ -10,7 +10,7 @@ class AppError(Exception):
 
 def handle_errors(func: Callable[..., int | None]) -> Callable[..., int]:
     # 모든 명령 핸들러에 붙여 스택트레이스 대신 "원인 + 힌트"만 보여주고 exit code를 되돌린다 (§4-13).
-    # 명령마다 try/except를 복붙하지 않으려고 데코레이터 하나로 모았다 (§4-12, 이해_B2-1 ❓12).
+    # 명령마다 try/except를 복붙하지 않으려고 데코레이터 하나로 모았다 (§4-12: 데코레이터 1개 이상 구현).
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> int:
         try:

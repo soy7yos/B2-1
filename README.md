@@ -75,12 +75,12 @@ python -m budget_app export --out backup.csv --month 2026-01
 ## 검증 방법 / logs 대응표
 | 단계 | 내용 | 로그 |
 | --- | --- | --- |
-| 1 | 패키지 뼈대 + 모델 | `logs/step_1_skeleton.txt` |
-| 2 | 저장소 계층 | `logs/step_2_repo.txt` |
-| 3 | CLI 파서 + 데코레이터 + 예외/exit code | `logs/step_3_cli.txt` |
-| 4 | category 관리 | `logs/step_4_category.txt` |
-| 5 | add + 입력 검증 | `logs/step_5_add.txt` |
-| 6 | list + search | `logs/step_6_list_search.txt` |
-| 7 | update + delete | `logs/step_7_update_delete.txt` |
-| 8 | summary + budget | `logs/step_8_summary_budget.txt` |
-| 9 | import + export | `logs/step_9_import_export.txt` |
+| 1 | 패키지 뼈대 + 모델 | [logs/step_1_skeleton.txt](logs/step_1_skeleton.txt) |
+| 2 | 저장소 계층 | [logs/step_2_repo.txt](logs/step_2_repo.txt) |
+| 3 | CLI 파서 + 데코레이터 + 예외/exit code | [logs/step_3_cli.txt](logs/step_3_cli.txt) |
+| 4 | category 관리 | [logs/step_4_category.txt](logs/step_4_category.txt) |
+| 5 | add + 입력 검증 | [logs/step_5_add.txt](logs/step_5_add.txt) |
+| 6 | list + search | [logs/step_6_list_search.txt](logs/step_6_list_search.txt) |
+| 7 | update + delete | [logs/step_7_update_delete.txt](logs/step_7_update_delete.txt) |
+| 8 | summary + budget | [logs/step_8_summary_budget.txt](logs/step_8_summary_budget.txt) |
+| 9 | import + export | [logs/step_9_import_export.txt](logs/step_9_import_export.txt) |

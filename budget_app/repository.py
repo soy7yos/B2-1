@@ -6,11 +6,11 @@ from dataclasses import asdict
 
 from budget_app.models import Budget, Transaction
 
-DEFAULT_CATEGORIES = ["식비", "교통", "주거", "통신", "급여", "기타"]  # 이해_B2-1 ❓10
+DEFAULT_CATEGORIES = ["식비", "교통", "주거", "통신", "급여", "기타"]  # 급여는 수입 대표, 나머지는 지출 위주 최소 구성 (6개, 한글)
 
 
 def _atomic_write_lines(path: str, lines: list[str]) -> None:
-    # 이해_B2-1 §4-6: 임시 파일에 다 쓴 뒤 이름만 바꿔치기 — 쓰다 중단돼도 원본 보존
+    # §4-6(저장 안정성): 임시 파일에 다 쓴 뒤 이름만 바꿔치기 — 쓰다 중단돼도 원본 보존
     tmp_path = path + ".tmp"
     with open(tmp_path, "w", encoding="utf-8") as f:
         for line in lines:
@@ -25,7 +25,7 @@ class TransactionRepository:
         self._path = os.path.join(data_dir, "transactions.jsonl")
         os.makedirs(data_dir, exist_ok=True)
         if not os.path.exists(self._path):
-            open(self._path, "w", encoding="utf-8").close()  # 이해_B2-1 ❓4: 없으면 자동 생성
+            open(self._path, "w", encoding="utf-8").close()  # 없으면 자동 생성
 
     def stream_all(self) -> Iterator[Transaction]:
         # 파일 전체를 리스트로 올리지 않고 한 줄씩 yield (§4-5 필수 요건)
@@ -42,7 +42,7 @@ class TransactionRepository:
             f.write(json.dumps(asdict(tx), ensure_ascii=False) + "\n")
 
     def next_id(self, date: str, type_: str) -> str:
-        # 이해_B2-1 ❓6 결정: {i|e}{YYMMDD}{그날 순번 2자리}. 순번은 수입/지출 구분 없이 그날 전체 건수를 공유해서 센다
+        # id 형식: {i|e}{YYMMDD}{그날 순번 2자리}. 순번은 수입/지출 구분 없이 그날 전체 건수를 공유해서 센다
         # (type별로 따로 세면 update로 type이 바뀔 때 다른 거래와 id가 겹칠 수 있어 이 위험을 없앰).
         prefix = "i" if type_ == "income" else "e"
         yymmdd = date[2:4] + date[5:7] + date[8:10]
@@ -62,7 +62,7 @@ class CategoryRepository:
         self._path = os.path.join(data_dir, "categories.jsonl")
         os.makedirs(data_dir, exist_ok=True)
         if not os.path.exists(self._path):
-            # 이해_B2-1 ❓3: 안 A — 빈 파일이면 기본 카테고리 자동 생성
+            # 빈 파일이면 기본 카테고리 자동 생성
             _atomic_write_lines(self._path, [json.dumps({"name": n}, ensure_ascii=False) for n in DEFAULT_CATEGORIES])
 
     def list_categories(self) -> list[str]:

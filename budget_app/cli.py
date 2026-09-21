@@ -1,4 +1,4 @@
-"""CLI 파서 — 서브커맨드 정의만 담당, 판단 로직은 4~9단계에서 서비스 계층으로 뺀다 (§4-14 계층 분리)."""
+"""CLI 파서 — 서브커맨드 정의만 담당, 판단 로직은 서비스 계층으로 뺀다 (§4-14 계층 분리)."""
 import argparse
 import sys
 from collections.abc import Callable
@@ -13,7 +13,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="budget_app",
         description="터미널 용돈기입장 프로그램 - 수입/지출을 기록하고 요약한다.",
     )
-    # 옵션 대시는 --로 통일 (이해_B2-1 ❓1). --data-dir 기본값은 ./data (❓11).
+    # 옵션 대시는 --로 통일. --data-dir 기본값은 ./data.
     parser.add_argument("--data-dir", default="./data", help="데이터 파일 폴더 (기본값: ./data)")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -54,11 +54,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_cat_list.set_defaults(func=cmd_category_list)
     p_cat_remove = category_sub.add_parser("remove", help="카테고리 삭제")
     p_cat_remove.add_argument("name")
-    # 사용 중인 카테고리는 기본적으로 삭제 차단 — 옮길 곳을 명시해야 삭제 허용 (이해_B2-1 §4-10)
+    # 사용 중인 카테고리는 기본적으로 삭제 차단 — 옮길 곳을 명시해야 삭제 허용 (§4-10: 카테고리 삭제 시 정합성 유지)
     p_cat_remove.add_argument("--replace-with", help="사용 중인 거래를 옮길 대체 카테고리")
     p_cat_remove.set_defaults(func=cmd_category_remove)
 
-    # update는 옵션 기반으로 고정 (이해_B2-1 ❓5) — delete와 방식 통일
+    # update는 옵션 기반으로 고정 — delete와 방식 통일
     p_update = sub.add_parser("update", help="거래 수정 (옵션 기반)")
     p_update.add_argument("--id", required=True)
     p_update.add_argument("--type", choices=["income", "expense"])
@@ -87,9 +87,6 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-# 아래 핸들러는 3단계 범위(파서+데코레이터+예외처리) 확인용 스텁이다. 4~9단계에서 서비스 계층 호출로 교체한다.
-
-
 def _prompt_retry(prompt_text: str, validator: Callable[[str], object]) -> object:
     # §4-2 "재입력 요구"를 대화형으로 구현 — 검증 실패해도 프로그램을 끝내지 않고 같은 질문을 다시 던진다
     while True:
@@ -110,7 +107,7 @@ def cmd_add(args: argparse.Namespace) -> int:
     amount = _prompt_retry("금액: ", TransactionService.validate_amount)
     memo = input("메모(선택): ").strip()
     tags_raw = input("태그(선택, 쉼표로 구분): ").strip()
-    # 내부 표현은 list[str] (이해_B2-1 ❓7) — CSV 직렬화는 9단계 import/export에서 처리
+    # 내부 표현은 list[str] — CSV 직렬화는 import/export에서 처리
     tags = [t.strip() for t in tags_raw.split(",") if t.strip()] if tags_raw else []
 
     tx = service.add(date, type_, category, amount, memo, tags)
@@ -161,7 +158,7 @@ def _summary_service(args: argparse.Namespace) -> SummaryService:
 def cmd_summary(args: argparse.Namespace) -> int:
     result = _summary_service(args).monthly(args.month, args.top)
     if result["count"] == 0:
-        # 0원과 구분해야 사용자가 버그로 오해하지 않는다 (이해_B2-1 §4-8)
+        # 0원과 구분해야 사용자가 버그로 오해하지 않는다 (§4-8: summary 데이터 없음 표시)
         print(f"{args.month}: 데이터 없음")
         return
     print(f"{args.month} 요약")
@@ -211,7 +208,7 @@ def cmd_category_remove(args: argparse.Namespace) -> int:
 
 @handle_errors
 def cmd_update(args: argparse.Namespace) -> int:
-    # 태그는 CLI에선 쉼표 문자열로 받아 내부 표현(list[str])으로 변환 (이해_B2-1 ❓7)
+    # 태그는 CLI에선 쉼표 문자열로 받아 내부 표현(list[str])으로 변환
     tags = [t.strip() for t in args.tags.split(",") if t.strip()] if args.tags is not None else None
     tx = _tx_service(args).update(
         args.id, type_=args.type, date=args.date, amount=args.amount, category=args.category, memo=args.memo, tags=tags
