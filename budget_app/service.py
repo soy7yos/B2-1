@@ -95,6 +95,50 @@ class TransactionService:
         self._tx.append(tx)
         return tx
 
+    def update(
+        self,
+        tx_id: str,
+        *,
+        type_: str | None = None,
+        date: str | None = None,
+        amount: int | None = None,
+        category: str | None = None,
+        memo: str | None = None,
+        tags: list[str] | None = None,
+    ) -> Transaction:
+        # 옵션 기반 update (이해_B2-1 ❓5) — 준 필드만 검증 후 덮어쓴다
+        all_tx = list(self._tx.stream_all())
+        target = next((tx for tx in all_tx if tx.id == tx_id), None)
+        if target is None:
+            raise AppError(f"id '{tx_id}'는 없는 데이터입니다. 힌트: list/search로 id를 확인하세요.")
+
+        if date is not None:
+            target.date = self.validate_date(date)
+        if amount is not None:
+            target.amount = self.validate_amount(str(amount))
+        if category is not None:
+            target.category = self.validate_category(category)
+        if memo is not None:
+            target.memo = memo
+        if tags is not None:
+            target.tags = tags
+        if type_ is not None:
+            self.validate_type(type_)
+            if type_ != target.type:
+                # id 앞글자만 새 type에 맞춰 교체, 뒤 8자리(날짜+순번)는 유지 (이해_B2-1 ❓6 결정)
+                target.type = type_
+                target.id = ("i" if type_ == "income" else "e") + target.id[1:]
+
+        self._tx.replace_all(all_tx)
+        return target
+
+    def delete(self, tx_id: str) -> None:
+        all_tx = list(self._tx.stream_all())
+        remaining = [tx for tx in all_tx if tx.id != tx_id]
+        if len(remaining) == len(all_tx):
+            raise AppError(f"id '{tx_id}'는 없는 데이터입니다. 힌트: list/search로 id를 확인하세요.")
+        self._tx.replace_all(remaining)
+
     def list_recent(self, limit: int) -> list[Transaction]:
         # sorted(list(...))는 전체를 메모리에 두 번 올린다 — heapq.nlargest는 스트림을 순회하며 상위 limit개만 유지 (§4-5)
         return heapq.nlargest(limit, self._tx.stream_all(), key=lambda tx: (tx.date, tx.id))

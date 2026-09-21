@@ -192,12 +192,18 @@ def cmd_category_remove(args: argparse.Namespace) -> int:
 
 @handle_errors
 def cmd_update(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    # 태그는 CLI에선 쉼표 문자열로 받아 내부 표현(list[str])으로 변환 (이해_B2-1 ❓7)
+    tags = [t.strip() for t in args.tags.split(",") if t.strip()] if args.tags is not None else None
+    tx = _tx_service(args).update(
+        args.id, type_=args.type, date=args.date, amount=args.amount, category=args.category, memo=args.memo, tags=tags
+    )
+    print(f"[수정 완료] id={tx.id}")
 
 
 @handle_errors
 def cmd_delete(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    _tx_service(args).delete(args.id)
+    print(f"[삭제 완료] id={args.id}")
 
 
 @handle_errors
