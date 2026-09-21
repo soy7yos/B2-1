@@ -1,0 +1,9 @@
+날짜(YYYY-MM-DD): 타입(income/expense): 카테고리: 금액(양수): 메모(선택): 태그(쉼표로 구분, 없으면 엔터): [저장 완료] id=TX-000001
+EXIT=0
+
+날짜(YYYY-MM-DD): [오류] 날짜 형식이 올바르지 않습니다 (YYYY-MM-DD). 힌트: 예: 2024-01-15
+날짜(YYYY-MM-DD): 타입(income/expense): 카테고리: 금액(양수): 메모(선택): 태그(쉼표로 구분, 없으면 엔터): [저장 완료] id=TX-000002
+EXIT=0
+
+{"id": "TX-000001", "type": "expense", "date": "2024-01-15", "amount": 15000, "category": "식비", "memo": "점심", "tags": ["meal"]}
+{"id": "TX-000002", "type": "income", "date": "2024-01-16", "amount": 3000000, "category": "급여", "memo": "", "tags": []}

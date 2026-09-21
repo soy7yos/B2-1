@@ -41,6 +41,12 @@ class TransactionRepository:
         with open(self._path, "a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(tx), ensure_ascii=False) + "\n")
 
+    def next_id(self) -> str:
+        # id 형식은 이해_B2-1 ❓ "TX-000012" 예시를 그대로 채택 — 기존 건수+1을 6자리로 채운다.
+        # count만 필요하므로 스트리밍 제너레이터를 그대로 소모 (§4-5 스트리밍 원칙 유지, 리스트로 안 올림)
+        count = sum(1 for _ in self.stream_all())
+        return f"TX-{count + 1:06d}"
+
     def replace_all(self, transactions: list[Transaction]) -> None:
         # update/delete용 — 전체를 새로 쓰되 원자적 교체로 안전성 확보
         lines = [json.dumps(asdict(tx), ensure_ascii=False) for tx in transactions]

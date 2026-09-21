@@ -1,9 +1,11 @@
 """CLI 파서 — 서브커맨드 정의만 담당, 판단 로직은 4~9단계에서 서비스 계층으로 뺀다 (§4-14 계층 분리)."""
 import argparse
+import sys
+from collections.abc import Callable
 
 from budget_app.decorators import AppError, handle_errors
 from budget_app.repository import CategoryRepository, TransactionRepository
-from budget_app.service import CategoryService
+from budget_app.service import CategoryService, TransactionService
 
 _NOT_IMPLEMENTED = "이 기능은 아직 구현되지 않았습니다 (다음 단계에서 추가 예정)"
 
@@ -90,9 +92,31 @@ def build_parser() -> argparse.ArgumentParser:
 # 아래 핸들러는 3단계 범위(파서+데코레이터+예외처리) 확인용 스텁이다. 4~9단계에서 서비스 계층 호출로 교체한다.
 
 
+def _prompt_retry(prompt_text: str, validator: Callable[[str], object]) -> object:
+    # §4-2 "재입력 요구"를 대화형으로 구현 — 검증 실패해도 프로그램을 끝내지 않고 같은 질문을 다시 던진다
+    while True:
+        raw = input(prompt_text)
+        try:
+            return validator(raw)
+        except AppError as e:
+            print(f"[오류] {e}", file=sys.stderr)
+
+
 @handle_errors
 def cmd_add(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    service = TransactionService(TransactionRepository(args.data_dir), CategoryRepository(args.data_dir))
+
+    date = _prompt_retry("날짜(YYYY-MM-DD): ", TransactionService.validate_date)
+    type_ = _prompt_retry("타입(income/expense): ", TransactionService.validate_type)
+    category = _prompt_retry("카테고리: ", service.validate_category)
+    amount = _prompt_retry("금액(양수): ", TransactionService.validate_amount)
+    memo = input("메모(선택): ").strip()
+    tags_raw = input("태그(쉼표로 구분, 없으면 엔터): ").strip()
+    # 내부 표현은 list[str] (이해_B2-1 ❓7) — CSV 직렬화는 9단계 import/export에서 처리
+    tags = [t.strip() for t in tags_raw.split(",") if t.strip()] if tags_raw else []
+
+    tx = service.add(date, type_, category, amount, memo, tags)
+    print(f"[저장 완료] id={tx.id}")
 
 
 @handle_errors

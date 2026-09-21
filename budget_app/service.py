@@ -1,6 +1,11 @@
 """서비스 계층 — 판단 로직(검증·정합성 규칙). cli.py는 입력만 해석하고 여기로 넘긴다 (§4-14 계층 분리)."""
+from datetime import datetime
+
 from budget_app.decorators import AppError
+from budget_app.models import Transaction
 from budget_app.repository import CategoryRepository, TransactionRepository
+
+VALID_TYPES = ("income", "expense")
 
 
 class CategoryService:
@@ -45,3 +50,46 @@ class CategoryService:
         names.remove(name)
         self._categories.save_all(names)
         return len(using)
+
+
+class TransactionService:
+    """거래 추가 검증 + 저장. 검증 메서드는 cli의 대화형 재입력 루프에서도 직접 호출한다."""
+
+    def __init__(self, tx_repo: TransactionRepository, category_repo: CategoryRepository):
+        self._tx = tx_repo
+        self._categories = category_repo
+
+    @staticmethod
+    def validate_date(text: str) -> str:
+        try:
+            datetime.strptime(text, "%Y-%m-%d")
+        except ValueError:
+            raise AppError("날짜 형식이 올바르지 않습니다 (YYYY-MM-DD). 힌트: 예: 2024-01-15")
+        return text
+
+    @staticmethod
+    def validate_type(text: str) -> str:
+        if text not in VALID_TYPES:
+            raise AppError(f"타입은 {'/'.join(VALID_TYPES)} 중 하나여야 합니다.")
+        return text
+
+    def validate_category(self, text: str) -> str:
+        # 없는 카테고리면 §4-9대로 안내만 하고 재입력을 유도 (자동 생성하지 않음)
+        if text not in self._categories.list_categories():
+            raise AppError(f"'{text}'은(는) 등록되지 않은 카테고리입니다. 힌트: category add로 먼저 등록하세요.")
+        return text
+
+    @staticmethod
+    def validate_amount(text: str) -> int:
+        try:
+            amount = int(text)
+        except ValueError:
+            raise AppError("금액은 숫자여야 합니다.")
+        if amount <= 0:
+            raise AppError("금액은 0보다 큰 값이어야 합니다 (양수만 허용).")
+        return amount
+
+    def add(self, date: str, type_: str, category: str, amount: int, memo: str, tags: list[str]) -> Transaction:
+        tx = Transaction(id=self._tx.next_id(), type=type_, date=date, amount=amount, category=category, memo=memo, tags=tags)
+        self._tx.append(tx)
+        return tx
