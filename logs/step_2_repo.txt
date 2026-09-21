@@ -1,0 +1,25 @@
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --help
+usage: budget_app [-h]
+
+터미널 용돈기입장 프로그램 - 수입/지출을 기록하고 요약한다.
+
+options:
+  -h, --help  show this help message and exit
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -c "                
+>> from budget_app.repository import TransactionRepository, CategoryRepository, BudgetRepository
+>> from budget_app.models import Transaction, Budget
+>> 
+>> cat_repo = CategoryRepository('data')
+>> print('categories(빈 폴더 첫 실행):', cat_repo.list_categories())
+>> 
+>> tx_repo = TransactionRepository('data')
+>> tx_repo.append(Transaction(id='i2609170', type='income', date='2026-09-17', amount=10000, category='급여', memo='테스트', tags=['월급']))
+>> print('transactions:', list(tx_repo.stream_all()))
+>> 
+>> bud_repo = BudgetRepository('data')
+>> bud_repo.set_budget(Budget(month='2026-09', amount=500000))
+>> print('budgets:', list(bud_repo.stream_all()))
+>> "
+categories(빈 폴더 첫 실행): ['식비', '교통', '주거', '통신', '급여', '기타']
+transactions: [Transaction(id='i2609170', type='income', date='2026-09-17', amount=10000, category='급여', memo='테스트', tags=['월급'])]
+budgets: [Budget(month='2026-09', amount=500000)]
