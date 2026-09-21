@@ -3,8 +3,8 @@ import heapq
 from datetime import datetime
 
 from budget_app.decorators import AppError
-from budget_app.models import Transaction
-from budget_app.repository import CategoryRepository, TransactionRepository
+from budget_app.models import Budget, Transaction
+from budget_app.repository import BudgetRepository, CategoryRepository, TransactionRepository
 
 VALID_TYPES = ("income", "expense")
 
@@ -172,3 +172,45 @@ class TransactionService:
         matched = [tx for tx in self._tx.stream_all() if matches(tx)]
         matched.sort(key=lambda tx: (tx.date, tx.id), reverse=True)
         return matched
+
+
+class SummaryService:
+    """월별 집계 + 예산 사용률. summary가 transactions·budgets 두 파일을 합쳐 읽는 지점 (이해_B2-1 §4-9)."""
+
+    def __init__(self, tx_repo: TransactionRepository, budget_repo: BudgetRepository):
+        self._tx = tx_repo
+        self._budget = budget_repo
+
+    def monthly(self, month: str, top: int) -> dict:
+        # 스트리밍 중 그 달 거래만 골라내고, 나머지는 즉시 버린다 (파일 전체를 들고 있지 않음)
+        income = 0
+        expense = 0
+        by_category: dict[str, int] = {}
+        count = 0
+        for tx in self._tx.stream_all():
+            if not tx.date.startswith(month):
+                continue
+            count += 1
+            if tx.type == "income":
+                income += tx.amount
+            else:
+                expense += tx.amount
+                by_category[tx.category] = by_category.get(tx.category, 0) + tx.amount
+
+        top_categories = heapq.nlargest(top, by_category.items(), key=lambda kv: kv[1])
+
+        budget = next((b for b in self._budget.stream_all() if b.month == month), None)
+        budget_info = None
+        if budget is not None:
+            # 사용률 = 총지출 / 예산 × 100 (이해_B2-1 §4-9)
+            usage_pct = round(expense / budget.amount * 100, 1) if budget.amount else 0.0
+            budget_info = {"amount": budget.amount, "usage_pct": usage_pct, "over": expense > budget.amount}
+
+        return {
+            "count": count,
+            "income": income,
+            "expense": expense,
+            "balance": income - expense,
+            "top_categories": top_categories,
+            "budget": budget_info,
+        }

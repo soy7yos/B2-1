@@ -1,0 +1,30 @@
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test category list                                                                              
+식비                                                                                                                                         
+교통
+주거
+통신
+급여
+기타
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test add          
+날짜(YYYY-MM-DD): 2026-09-21
+타입(income/expense): expense
+카테고리: 식비
+금액(양수): 8000
+메모(선택): 점심
+태그(쉼표로 구분, 없으면 엔터): 
+[저장 완료] id=e26092101
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test list
+e26092101 | 2026-09-21 | expense | 식비 | 8000 | 점심
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test update --id e26092101 --amount 7000 --memo "수정테스트"                
+[수정 완료] id=e26092101
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test update --id e26092101 --type income                    
+[수정 완료] id=i26092101
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test update --id nope --amount 1        
+오류: id 'nope'는 없는 데이터입니다. 힌트: list/search로 id를 확인하세요.
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test delete --id e26092101      
+오류: id 'e26092101'는 없는 데이터입니다. 힌트: list/search로 id를 확인하세요.
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test delete --id i26092101
+[삭제 완료] id=i26092101
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> python -m budget_app --data-dir data_test delete --id nope     
+오류: id 'nope'는 없는 데이터입니다. 힌트: list/search로 id를 확인하세요.
+PS G:\내 드라이브\Codyssey\02_AI_Tools\B2-1> Remove-Item -Recurse -Force data_test  

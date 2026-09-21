@@ -4,8 +4,9 @@ import sys
 from collections.abc import Callable
 
 from budget_app.decorators import AppError, handle_errors
-from budget_app.repository import CategoryRepository, TransactionRepository
-from budget_app.service import CategoryService, TransactionService
+from budget_app.models import Budget
+from budget_app.repository import BudgetRepository, CategoryRepository, TransactionRepository
+from budget_app.service import CategoryService, SummaryService, TransactionService
 
 _NOT_IMPLEMENTED = "이 기능은 아직 구현되지 않았습니다 (다음 단계에서 추가 예정)"
 
@@ -109,9 +110,9 @@ def cmd_add(args: argparse.Namespace) -> int:
     date = _prompt_retry("날짜(YYYY-MM-DD): ", TransactionService.validate_date)
     type_ = _prompt_retry("타입(income/expense): ", TransactionService.validate_type)
     category = _prompt_retry("카테고리: ", service.validate_category)
-    amount = _prompt_retry("금액(양수): ", TransactionService.validate_amount)
+    amount = _prompt_retry("금액: ", TransactionService.validate_amount)
     memo = input("메모(선택): ").strip()
-    tags_raw = input("태그(쉼표로 구분, 없으면 엔터): ").strip()
+    tags_raw = input("태그(선택, 쉼표로 구분): ").strip()
     # 내부 표현은 list[str] (이해_B2-1 ❓7) — CSV 직렬화는 9단계 import/export에서 처리
     tags = [t.strip() for t in tags_raw.split(",") if t.strip()] if tags_raw else []
 
@@ -155,14 +156,35 @@ def cmd_search(args: argparse.Namespace) -> int:
         _print_tx(tx)
 
 
+def _summary_service(args: argparse.Namespace) -> SummaryService:
+    return SummaryService(TransactionRepository(args.data_dir), BudgetRepository(args.data_dir))
+
+
 @handle_errors
 def cmd_summary(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    result = _summary_service(args).monthly(args.month, args.top)
+    if result["count"] == 0:
+        # 0원과 구분해야 사용자가 버그로 오해하지 않는다 (이해_B2-1 §4-8)
+        print(f"{args.month}: 데이터 없음")
+        return
+    print(f"{args.month} 요약")
+    print(f"  총수입: {result['income']}")
+    print(f"  총지출: {result['expense']}")
+    print(f"  잔액: {result['balance']}")
+    if result["top_categories"]:
+        print(f"  지출 상위 카테고리 (top {args.top}):")
+        for name, amount in result["top_categories"]:
+            print(f"    {name}: {amount}")
+    budget = result["budget"]
+    if budget is not None:
+        status = "초과" if budget["over"] else "정상"
+        print(f"  예산: {budget['amount']} (사용률 {budget['usage_pct']}%, {status})")
 
 
 @handle_errors
 def cmd_budget_set(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    BudgetRepository(args.data_dir).set_budget(Budget(month=args.month, amount=args.amount))
+    print(f"[예산 저장 완료] {args.month} = {args.amount}")
 
 
 def _category_service(args: argparse.Namespace) -> CategoryService:
