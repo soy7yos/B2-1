@@ -1,6 +1,0 @@
-{"id": "e24011501", "type": "expense", "date": "2024-01-15", "amount": 15000, "category": "식비", "memo": "점심", "tags": ["meal"]}
-{"id": "i24011601", "type": "income", "date": "2024-01-16", "amount": 3000000, "category": "급여", "memo": "", "tags": []}
-{"id": "e24012001", "type": "expense", "date": "2024-01-20", "amount": 3000, "category": "교통", "memo": "버스", "tags": ["bus"]}
-{"id": "i26091701", "type": "income", "date": "2026-09-17", "amount": 10000, "category": "급여", "memo": "테스트", "tags": ["월급"]}
-{"id": "e26091001", "type": "expense", "date": "2026-09-10", "amount": 20000, "category": "식비", "memo": "저녁", "tags": []}
-{"id": "i26091501", "type": "income", "date": "2026-09-15", "amount": 1000000, "category": "급여", "memo": "", "tags": []}
