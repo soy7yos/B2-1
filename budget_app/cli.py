@@ -104,7 +104,7 @@ def _prompt_retry(prompt_text: str, validator: Callable[[str], object]) -> objec
 
 @handle_errors
 def cmd_add(args: argparse.Namespace) -> int:
-    service = TransactionService(TransactionRepository(args.data_dir), CategoryRepository(args.data_dir))
+    service = _tx_service(args)
 
     date = _prompt_retry("날짜(YYYY-MM-DD): ", TransactionService.validate_date)
     type_ = _prompt_retry("타입(income/expense): ", TransactionService.validate_type)
@@ -119,14 +119,40 @@ def cmd_add(args: argparse.Namespace) -> int:
     print(f"[저장 완료] id={tx.id}")
 
 
+def _print_tx(tx) -> None:
+    # §8 예시 형식(id | date | type | category | amount | memo) 그대로 — tags는 search --tag로만 걸러보고 목록엔 안 찍음
+    print(f"{tx.id} | {tx.date} | {tx.type} | {tx.category} | {tx.amount} | {tx.memo}")
+
+
+def _tx_service(args: argparse.Namespace) -> TransactionService:
+    return TransactionService(TransactionRepository(args.data_dir), CategoryRepository(args.data_dir))
+
+
 @handle_errors
 def cmd_list(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    results = _tx_service(args).list_recent(args.limit)
+    if not results:
+        print("거래 내역이 없습니다.")
+        return
+    for tx in results:
+        _print_tx(tx)
 
 
 @handle_errors
 def cmd_search(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    results = _tx_service(args).search(
+        date_from=args.date_from,
+        date_to=args.date_to,
+        category=args.category,
+        type_=args.type,
+        q=args.q,
+        tag=args.tag,
+    )
+    if not results:
+        print("검색 결과가 없습니다.")
+        return
+    for tx in results:
+        _print_tx(tx)
 
 
 @handle_errors

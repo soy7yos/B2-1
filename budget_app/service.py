@@ -1,4 +1,5 @@
 """서비스 계층 — 판단 로직(검증·정합성 규칙). cli.py는 입력만 해석하고 여기로 넘긴다 (§4-14 계층 분리)."""
+import heapq
 from datetime import datetime
 
 from budget_app.decorators import AppError
@@ -93,3 +94,37 @@ class TransactionService:
         tx = Transaction(id=self._tx.next_id(date, type_), type=type_, date=date, amount=amount, category=category, memo=memo, tags=tags)
         self._tx.append(tx)
         return tx
+
+    def list_recent(self, limit: int) -> list[Transaction]:
+        # sorted(list(...))는 전체를 메모리에 두 번 올린다 — heapq.nlargest는 스트림을 순회하며 상위 limit개만 유지 (§4-5)
+        return heapq.nlargest(limit, self._tx.stream_all(), key=lambda tx: (tx.date, tx.id))
+
+    def search(
+        self,
+        *,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        category: str | None = None,
+        type_: str | None = None,
+        q: str | None = None,
+        tag: str | None = None,
+    ) -> list[Transaction]:
+        def matches(tx: Transaction) -> bool:
+            if date_from and tx.date < date_from:
+                return False
+            if date_to and tx.date > date_to:
+                return False
+            if category and tx.category != category:
+                return False
+            if type_ and tx.type != type_:
+                return False
+            if q and q not in tx.memo:
+                return False
+            if tag and tag not in tx.tags:
+                return False
+            return True
+
+        # 제너레이터를 조건으로 필터링하며 순회 (§4-7) — 결과 집합만 리스트에 남기고 최신순 정렬
+        matched = [tx for tx in self._tx.stream_all() if matches(tx)]
+        matched.sort(key=lambda tx: (tx.date, tx.id), reverse=True)
+        return matched
