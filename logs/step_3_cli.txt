@@ -1,0 +1,35 @@
+usage: budget_app [-h] [--data-dir DATA_DIR]
+                  {add,list,search,summary,budget,category,update,delete,import,export} ...
+
+터미널 용돈기입장 프로그램 - 수입/지출을 기록하고 요약한다.
+
+positional arguments:
+  {add,list,search,summary,budget,category,update,delete,import,export}
+    add                 거래 추가 (대화형)
+    list                거래 목록 (최신순)
+    search              조건으로 거래 검색
+    summary             월별 총수입/총지출/잔액 + 카테고리 TOP N
+    budget              월 예산 설정
+    category            카테고리 관리
+    update              거래 수정 (옵션 기반)
+    delete              거래 삭제
+    import              CSV에서 거래 일괄 등록
+    export              조건에 맞는 거래를 CSV로 저장
+
+options:
+  -h, --help            show this help message and exit
+  --data-dir DATA_DIR   데이터 파일 폴더 (기본값: ./data)
+--- add --help ---
+usage: budget_app add [-h]
+
+options:
+  -h, --help  show this help message and exit
+--- add (미구현 스텁, exit code 확인) ---
+오류: 이 기능은 아직 구현되지 않았습니다 (다음 단계에서 추가 예정)
+exit=1
+--- search --type badvalue (argparse 자체 오류) ---
+usage: budget_app search [-h] [--from DATE_FROM] [--to DATE_TO]
+                         [--category CATEGORY] [--type {income,expense}]
+                         [--q Q] [--tag TAG]
+exit=2
+app search: error: argument --type: invalid choice: 'badvalue' (choose from income, expense)
