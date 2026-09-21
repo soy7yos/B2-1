@@ -1,10 +1,40 @@
-i2609170 | 2026-09-17 | income | 급여 | 10000 | 테스트
+--- 사전 준비: 거래 4건 등록 (add, 대화형) ---
+$ python -m budget_app add
+날짜(YYYY-MM-DD): 2024-01-15 / 타입: expense / 카테고리: 식비 / 금액: 15000 / 메모: 점심 / 태그: meal
+[저장 완료] id=e24011501
+
+$ python -m budget_app add
+날짜(YYYY-MM-DD): 2024-01-16 / 타입: income / 카테고리: 급여 / 금액: 3000000 / 메모: (엔터) / 태그: (엔터)
+[저장 완료] id=i24011601
+
+$ python -m budget_app add
+날짜(YYYY-MM-DD): 2024-01-20 / 타입: expense / 카테고리: 교통 / 금액: 3000 / 메모: 버스 / 태그: bus
+[저장 완료] id=e24012001
+
+$ python -m budget_app add
+날짜(YYYY-MM-DD): 2026-09-17 / 타입: income / 카테고리: 급여 / 금액: 10000 / 메모: 테스트 / 태그: 월급
+[저장 완료] id=i26091701
+
+--- python -m budget_app list (기본 limit=5, 최신순) ---
+i26091701 | 2026-09-17 | income | 급여 | 10000 | 테스트
+e24012001 | 2024-01-20 | expense | 교통 | 3000 | 버스
+i24011601 | 2024-01-16 | income | 급여 | 3000000 |
+e24011501 | 2024-01-15 | expense | 식비 | 15000 | 점심
+
+--- python -m budget_app list --limit 2 ---
+i26091701 | 2026-09-17 | income | 급여 | 10000 | 테스트
+e24012001 | 2024-01-20 | expense | 교통 | 3000 | 버스
+
+--- python -m budget_app search --category 식비 ---
+e24011501 | 2024-01-15 | expense | 식비 | 15000 | 점심
+
+--- python -m budget_app search --from 2024-01-01 --to 2024-01-31 --type expense ---
 e24012001 | 2024-01-20 | expense | 교통 | 3000 | 버스
 e24011501 | 2024-01-15 | expense | 식비 | 15000 | 점심
 
-e24012001 | 2024-01-20 | expense | 교통 | 3000 | 버스
-e24011501 | 2024-01-15 | expense | 식비 | 15000 | 점심
+--- python -m budget_app search --type income ---
+i26091701 | 2026-09-17 | income | 급여 | 10000 | 테스트
+i24011601 | 2024-01-16 | income | 급여 | 3000000 |
 
-i2609170 | 2026-09-17 | income | 급여 | 10000 | 테스트
-
+--- python -m budget_app search --q 없는단어 (매치 없음) ---
 검색 결과가 없습니다.

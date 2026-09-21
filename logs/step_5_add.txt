@@ -1,9 +1,25 @@
-날짜(YYYY-MM-DD): 타입(income/expense): 카테고리: 금액(양수): 메모(선택): 태그(쉼표로 구분, 없으면 엔터): [저장 완료] id=e24011501
+$ python -m budget_app add
+날짜(YYYY-MM-DD): 2024-01-15
+타입(income/expense): expense
+카테고리: 식비
+금액(양수): 15000
+메모(선택): 점심
+태그(쉼표로 구분, 없으면 엔터): meal
+[저장 완료] id=e24011501
 EXIT=0
 
-날짜(YYYY-MM-DD): [오류] 날짜 형식이 올바르지 않습니다 (YYYY-MM-DD). 힌트: 예: 2024-01-15
-날짜(YYYY-MM-DD): 타입(income/expense): 카테고리: 금액(양수): 메모(선택): 태그(쉼표로 구분, 없으면 엔터): [저장 완료] id=i24011601
+$ python -m budget_app add
+날짜(YYYY-MM-DD): 2024/01/16
+[오류] 날짜 형식이 올바르지 않습니다 (YYYY-MM-DD). 힌트: 예: 2024-01-15
+날짜(YYYY-MM-DD): 2024-01-16
+타입(income/expense): income
+카테고리: 급여
+금액(양수): 3000000
+메모(선택): (엔터)
+태그(쉼표로 구분, 없으면 엔터): (엔터)
+[저장 완료] id=i24011601
 EXIT=0
 
+--- data/transactions.jsonl (저장 결과) ---
 {"id": "e24011501", "type": "expense", "date": "2024-01-15", "amount": 15000, "category": "식비", "memo": "점심", "tags": ["meal"]}
 {"id": "i24011601", "type": "income", "date": "2024-01-16", "amount": 3000000, "category": "급여", "memo": "", "tags": []}

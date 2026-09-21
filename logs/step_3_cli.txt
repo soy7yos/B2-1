@@ -1,3 +1,4 @@
+$ python -m budget_app --help
 usage: budget_app [-h] [--data-dir DATA_DIR]
                   {add,list,search,summary,budget,category,update,delete,import,export} ...
 
@@ -19,14 +20,17 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   --data-dir DATA_DIR   데이터 파일 폴더 (기본값: ./data)
+$ python -m budget_app add --help
 --- add --help ---
 usage: budget_app add [-h]
 
 options:
   -h, --help  show this help message and exit
+$ python -m budget_app add
 --- add (미구현 스텁, exit code 확인) ---
 오류: 이 기능은 아직 구현되지 않았습니다 (다음 단계에서 추가 예정)
 exit=1
+$ python -m budget_app search --type badvalue
 --- search --type badvalue (argparse 자체 오류) ---
 usage: budget_app search [-h] [--from DATE_FROM] [--to DATE_TO]
                          [--category CATEGORY] [--type {income,expense}]

@@ -1,3 +1,4 @@
+$ python -m budget_app category list
 --- category list (빈 상태 → 기본 카테고리 자동생성) ---
 식비
 교통
@@ -6,29 +7,36 @@
 급여
 기타
 
+$ python -m budget_app category add 여가
 --- category add 여가 ---
 카테고리 '여가' 추가 완료
 
+$ python -m budget_app category add 여가
 --- category add 여가 (중복, exit code 확인) ---
 오류: '여가'은(는) 이미 있는 카테고리입니다.
 exit=1
 
+$ python -m budget_app category remove 여가
 --- category remove 여가 (미사용, 정상 삭제) ---
 카테고리 '여가' 삭제 완료
 
+$ python -m budget_app category remove 없는거
 --- category remove 없는거 (없는 카테고리, exit code 확인) ---
 오류: '없는거'은(는) 없는 카테고리입니다. 힌트: category list로 확인하세요.
 exit=1
 --- (테스트용) 식비 카테고리를 쓰는 거래 1건 미리 삽입 ---
 
+$ python -m budget_app category remove 식비
 --- category remove 식비 (사용 중, --replace-with 없이 → 차단) ---
 오류: '식비'을(를) 쓰는 거래가 1건 있어 삭제할 수 없습니다. 힌트: --replace-with <대체 카테고리>로 옮기고 삭제하세요.
 exit=1
 
+$ python -m budget_app category remove 식비 --replace-with 기타
 --- category remove 식비 --replace-with 기타 (대체 후 삭제) ---
 카테고리 '식비' 삭제 완료 (거래 1건을 '기타'로 이동)
 exit=0
 
+$ python -m budget_app category list
 --- category list (최종 확인) ---
 교통
 주거
