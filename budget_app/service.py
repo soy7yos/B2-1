@@ -1,6 +1,9 @@
 """서비스 계층 — 판단 로직(검증·정합성 규칙). cli.py는 입력만 해석하고 여기로 넘긴다 (§4-14 계층 분리)."""
+import csv
 import heapq
 from datetime import datetime
+
+CSV_FIELDS = ["date", "type", "category", "amount", "memo", "tags"]  # §4-11 고정 6열 스키마
 
 from budget_app.decorators import AppError
 from budget_app.models import Budget, Transaction
@@ -172,6 +175,49 @@ class TransactionService:
         matched = [tx for tx in self._tx.stream_all() if matches(tx)]
         matched.sort(key=lambda tx: (tx.date, tx.id), reverse=True)
         return matched
+
+    def import_csv(self, csv_path: str) -> tuple[int, int]:
+        # 한 줄씩 검증 후 통과한 줄만 저장 — 스키마 위반/없는 카테고리는 skip (이해_B2-1 ❓13)
+        imported = 0
+        skipped = 0
+        with open(csv_path, encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                try:
+                    date = self.validate_date(row["date"])
+                    type_ = self.validate_type(row["type"])
+                    category = self.validate_category(row["category"])
+                    amount = self.validate_amount(row["amount"])
+                except (AppError, KeyError):
+                    skipped += 1
+                    continue
+                memo = row.get("memo") or ""
+                tags_raw = row.get("tags") or ""
+                tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+                self.add(date, type_, category, amount, memo, tags)
+                imported += 1
+        return imported, skipped
+
+    def export_csv(self, csv_path: str, *, month: str | None, date_from: str | None, date_to: str | None) -> int:
+        if month:
+            date_from = date_from or f"{month}-01"
+            date_to = date_to or f"{month}-31"  # 문자열 비교라 31로 둬도 그 달 안이면 다 걸림 (date는 YYYY-MM-DD 포맷)
+        results = self.search(date_from=date_from, date_to=date_to)
+        with open(csv_path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+            writer.writeheader()
+            for tx in results:
+                writer.writerow(
+                    {
+                        "date": tx.date,
+                        "type": tx.type,
+                        "category": tx.category,
+                        "amount": tx.amount,
+                        "memo": tx.memo,
+                        "tags": ",".join(tx.tags),
+                    }
+                )
+        return len(results)
 
 
 class SummaryService:

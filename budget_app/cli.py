@@ -8,9 +8,6 @@ from budget_app.models import Budget
 from budget_app.repository import BudgetRepository, CategoryRepository, TransactionRepository
 from budget_app.service import CategoryService, SummaryService, TransactionService
 
-_NOT_IMPLEMENTED = "이 기능은 아직 구현되지 않았습니다 (다음 단계에서 추가 예정)"
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="budget_app",
@@ -230,12 +227,17 @@ def cmd_delete(args: argparse.Namespace) -> int:
 
 @handle_errors
 def cmd_import(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    imported, skipped = _tx_service(args).import_csv(args.csv_path)
+    print(f"imported={imported}, skipped={skipped}")
 
 
 @handle_errors
 def cmd_export(args: argparse.Namespace) -> int:
-    raise AppError(_NOT_IMPLEMENTED)
+    if not args.month and not (args.date_from or args.date_to):
+        # §4-11: export는 --month 또는 --from/--to 중 하나 이상 필수
+        raise AppError("--month 또는 --from/--to 중 하나는 반드시 지정해야 합니다.")
+    count = _tx_service(args).export_csv(args.out, month=args.month, date_from=args.date_from, date_to=args.date_to)
+    print(f"[내보내기 완료] {count}건 -> {args.out}")
 
 
 def main(argv: list[str] | None = None) -> int:
