@@ -41,11 +41,13 @@ class TransactionRepository:
         with open(self._path, "a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(tx), ensure_ascii=False) + "\n")
 
-    def next_id(self) -> str:
-        # id 형식은 이해_B2-1 ❓ "TX-000012" 예시를 그대로 채택 — 기존 건수+1을 6자리로 채운다.
-        # count만 필요하므로 스트리밍 제너레이터를 그대로 소모 (§4-5 스트리밍 원칙 유지, 리스트로 안 올림)
-        count = sum(1 for _ in self.stream_all())
-        return f"TX-{count + 1:06d}"
+    def next_id(self, date: str, type_: str) -> str:
+        # 이해_B2-1 ❓6 결정: {i|e}{YYMMDD}{그날 순번 2자리}. 순번은 수입/지출 구분 없이 그날 전체 건수를 공유해서 센다
+        # (type별로 따로 세면 update로 type이 바뀔 때 다른 거래와 id가 겹칠 수 있어 이 위험을 없앰).
+        prefix = "i" if type_ == "income" else "e"
+        yymmdd = date[2:4] + date[5:7] + date[8:10]
+        same_day = sum(1 for tx in self.stream_all() if tx.date == date)
+        return f"{prefix}{yymmdd}{same_day + 1:02d}"
 
     def replace_all(self, transactions: list[Transaction]) -> None:
         # update/delete용 — 전체를 새로 쓰되 원자적 교체로 안전성 확보

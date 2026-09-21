@@ -90,6 +90,6 @@ class TransactionService:
         return amount
 
     def add(self, date: str, type_: str, category: str, amount: int, memo: str, tags: list[str]) -> Transaction:
-        tx = Transaction(id=self._tx.next_id(), type=type_, date=date, amount=amount, category=category, memo=memo, tags=tags)
+        tx = Transaction(id=self._tx.next_id(date, type_), type=type_, date=date, amount=amount, category=category, memo=memo, tags=tags)
         self._tx.append(tx)
         return tx
