@@ -19,6 +19,7 @@ python -m budget_app <command> --help
   - `transactions.jsonl` — 거래 내역
   - `categories.jsonl` — 카테고리 목록
   - `budgets.jsonl` — 월별 예산
+- 저장 파일이 없을 때: 별도 안내 없이 **자동 생성**. `categories.jsonl`은 기본 카테고리 6개로 채워서 생성, `transactions.jsonl`/`budgets.jsonl`은 빈 파일로 생성
 
 ## 구현 기능 목록
 - `add` — 거래 추가 (대화형 입력, 검증 실패 시 같은 항목 재입력)
