@@ -26,3 +26,7 @@ __pycache__/
 
 # 런타임 산출물 — 실행 시 자동 생성/초기화되는 데이터 파일(§4-3), 개발 중 테스트 값이 커밋되지 않게 함
 data/
+
+# 로컬 참고 이미지
+ChatGPT Image.png
+Gemini_Generated_Image_*.png
