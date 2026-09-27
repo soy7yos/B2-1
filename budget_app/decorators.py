@@ -19,6 +19,10 @@ def handle_errors(func: Callable[..., int | None]) -> Callable[..., int]:
         except AppError as e:
             print(f"오류: {e}", file=sys.stderr)
             return 1
+        except KeyboardInterrupt:
+            # Ctrl+C는 Exception 하위가 아니라 따로 잡아야 트레이스가 안 나온다. 130 = SIGINT 종료 관례
+            print("\n오류: 입력이 중단되었습니다. 힌트: 처음부터 다시 실행하세요.", file=sys.stderr)
+            return 130
         except Exception as e:  # noqa: BLE001 - 사용자에게는 항상 힌트만 보여줘야 함
             print(f"오류: {e}", file=sys.stderr)
             print("힌트: 입력값과 --data-dir 경로를 확인하세요.", file=sys.stderr)

@@ -6,7 +6,7 @@ from datetime import datetime
 CSV_FIELDS = ["date", "type", "category", "amount", "memo", "tags"]  # §4-11 고정 6열 스키마
 
 from budget_app.decorators import AppError
-from budget_app.models import Budget, Transaction
+from budget_app.models import Transaction
 from budget_app.repository import BudgetRepository, CategoryRepository, TransactionRepository
 
 VALID_TYPES = ("income", "expense")
@@ -69,6 +69,14 @@ class TransactionService:
             datetime.strptime(text, "%Y-%m-%d")
         except ValueError:
             raise AppError("날짜 형식이 올바르지 않습니다 (YYYY-MM-DD). 힌트: 예: 2024-01-15")
+        return text
+
+    @staticmethod
+    def validate_month(text: str) -> str:
+        try:
+            datetime.strptime(text, "%Y-%m")
+        except ValueError:
+            raise AppError("월 형식이 올바르지 않습니다 (YYYY-MM). 힌트: 예: 2024-01")
         return text
 
     @staticmethod

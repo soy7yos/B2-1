@@ -42,12 +42,13 @@ class TransactionRepository:
             f.write(json.dumps(asdict(tx), ensure_ascii=False) + "\n")
 
     def next_id(self, date: str, type_: str) -> str:
-        # id 형식: {i|e}{YYMMDD}{그날 순번 2자리}. 순번은 수입/지출 구분 없이 그날 전체 건수를 공유해서 센다
-        # (type별로 따로 세면 update로 type이 바뀔 때 다른 거래와 id가 겹칠 수 있어 이 위험을 없앰).
+        # id 형식: {i|e}{YYMMDD}{그날 순번 2자리}. 순번은 수입/지출 구분 없이 공유해 type이 바뀌어도 안 겹친다.
+        # 건수+1로 매기면 중간 거래를 지운 뒤 기존 id와 겹치므로, 같은 날짜 id 중 가장 큰 순번+1을 쓴다.
+        # 날짜는 tx.date가 아니라 id 안의 YYMMDD로 비교 — update로 date만 바뀐 거래도 id는 그대로라서.
         prefix = "i" if type_ == "income" else "e"
         yymmdd = date[2:4] + date[5:7] + date[8:10]
-        same_day = sum(1 for tx in self.stream_all() if tx.date == date)
-        return f"{prefix}{yymmdd}{same_day + 1:02d}"
+        last = max((int(tx.id[7:]) for tx in self.stream_all() if tx.id[1:7] == yymmdd), default=0)
+        return f"{prefix}{yymmdd}{last + 1:02d}"
 
     def replace_all(self, transactions: list[Transaction]) -> None:
         # update/delete용 — 전체를 새로 쓰되 원자적 교체로 안전성 확보

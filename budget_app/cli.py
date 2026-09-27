@@ -156,6 +156,7 @@ def _summary_service(args: argparse.Namespace) -> SummaryService:
 
 @handle_errors
 def cmd_summary(args: argparse.Namespace) -> int:
+    TransactionService.validate_month(args.month)
     result = _summary_service(args).monthly(args.month, args.top)
     if result["count"] == 0:
         # 0원과 구분해야 사용자가 버그로 오해하지 않는다 (§4-8: summary 데이터 없음 표시)
@@ -177,7 +178,9 @@ def cmd_summary(args: argparse.Namespace) -> int:
 
 @handle_errors
 def cmd_budget_set(args: argparse.Namespace) -> int:
-    BudgetRepository(args.data_dir).set_budget(Budget(month=args.month, amount=args.amount))
+    month = TransactionService.validate_month(args.month)
+    amount = TransactionService.validate_amount(str(args.amount))
+    BudgetRepository(args.data_dir).set_budget(Budget(month=month, amount=amount))
     print(f"[예산 저장 완료] {args.month} = {args.amount}")
 
 
@@ -233,6 +236,8 @@ def cmd_export(args: argparse.Namespace) -> int:
     if not args.month and not (args.date_from or args.date_to):
         # §4-11: export는 --month 또는 --from/--to 중 하나 이상 필수
         raise AppError("--month 또는 --from/--to 중 하나는 반드시 지정해야 합니다.")
+    if args.month:
+        TransactionService.validate_month(args.month)
     count = _tx_service(args).export_csv(args.out, month=args.month, date_from=args.date_from, date_to=args.date_to)
     print(f"[내보내기 완료] {count}건 -> {args.out}")
 

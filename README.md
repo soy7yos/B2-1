@@ -69,7 +69,7 @@ python -m budget_app export --out backup.csv --month 2026-01
 - `list --limit` 기본값: 5
 - `summary --top` 기본값: 3
 - 기본 카테고리: 식비, 교통, 주거, 통신, 급여, 기타
-- `id` 형식: `{i|e}{YYMMDD}{그날 순번 2자리}` (예: 수입/지출 구분 없이 그날 전체 건수로 순번을 매겨 type 변경 시에도 겹치지 않게 함)
+- `id` 형식: `{i|e}{YYMMDD}{그날 순번 2자리}` (순번은 수입/지출 구분 없이 그날 id 중 가장 큰 순번+1 — 삭제 후 추가나 type 변경에도 동시에 존재하는 id끼리는 겹치지 않음)
 - `--data-dir` 기본값: `./data`
 
 ## 검증 방법 / logs 대응표
